@@ -2,6 +2,7 @@ package com.example.yttest;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -9,43 +10,69 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.yttest.databinding.ActivityMapsBinding;
+
+import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
 
-    @Override
+    LatLng User1 = new LatLng(41.015137, 28.979530);
+    LatLng User2 = new LatLng(39.925533, 32.866287);
+    LatLng User3 = new LatLng(38.423733, 27.142826);
+    LatLng User4 = new LatLng(38.680969, 39.226398);
+
+    // creating array list for adding all our locations.
+    private ArrayList<LatLng> locationArrayList;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        binding = ActivityMapsBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_maps);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        // in below line we are initializing our array list.
+        locationArrayList = new ArrayList<>();
+
+        // on below line we are adding our
+        // locations in our array list.
+        locationArrayList.add(User1);
+        locationArrayList.add(User2);
+        locationArrayList.add(User3);
+        locationArrayList.add(User4);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
+
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // inside on map ready method
+        // we will be displaying all our markers.
+        // for adding markers we are running for loop and
+        // inside that we are drawing marker on our map.
+        for (int i = 0; i < locationArrayList.size(); i++) {
+
+            // below line is use to add marker to each location of our array list.
+            mMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title("Marker"));
+
+            // below lin is use to zoom our camera on map.
+            mMap.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
+
+            // below line is use to move our camera to the specific location.
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
+        }
     }
+
+
+
+
+
 }

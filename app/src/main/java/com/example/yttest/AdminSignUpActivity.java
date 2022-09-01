@@ -82,5 +82,7 @@ public class AdminSignUpActivity extends AppCompatActivity {
 
     }
 
+    private void updateUI(FirebaseUser user) {
+    }
 
 }
