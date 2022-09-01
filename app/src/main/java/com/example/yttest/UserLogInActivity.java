@@ -10,14 +10,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.yttest.databinding.ActivityAdminLogInBinding;
+import com.example.yttest.databinding.ActivityUserLogInBinding;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class AdminLogInActivity extends AppCompatActivity {
+public class UserLogInActivity extends AppCompatActivity {
 
-    private ActivityAdminLogInBinding binding;
+    private ActivityUserLogInBinding binding;
     private FirebaseAuth auth;
 
     @Override
@@ -25,7 +26,7 @@ public class AdminLogInActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_log_in);
-        binding = ActivityAdminLogInBinding.inflate(getLayoutInflater());
+        binding = ActivityUserLogInBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
         auth= FirebaseAuth.getInstance();
@@ -34,10 +35,10 @@ public class AdminLogInActivity extends AppCompatActivity {
 
 
 
-        public void LogInClick (View view){
+    public void UserSignUpClick (View view){
 
-        String email = binding.EmailLogInText.getText().toString();
-        String password = binding.PasswordLogInText.getText().toString();
+        String email = binding.UserEnterLogInEmail.getText().toString();
+        String password = binding.UserEnterLogInPassword.getText().toString();
 
 
         if(email.equals("") || password.equals("")){
@@ -48,7 +49,7 @@ public class AdminLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(AdminLogInActivity.this,MapsActivity.class);
+                    Intent intent = new Intent(UserLogInActivity.this,UserMapsActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -57,7 +58,7 @@ public class AdminLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(AdminLogInActivity.this,e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(UserLogInActivity.this,e.getLocalizedMessage(),Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -68,14 +69,14 @@ public class AdminLogInActivity extends AppCompatActivity {
     }
 
 
-    public void AdminSignInSelected (View view){
+    public void UserSignInSelected (View view){
 
-        TextView logInText = (TextView)findViewById(R.id.logInText);
+        TextView logInText = (TextView)findViewById(R.id.userSignInText);
 
         logInText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(AdminLogInActivity.this, AdminSignUpActivity.class));
+                startActivity(new Intent(UserLogInActivity.this, UserSignUpActivity.class));
             }
         });
 

@@ -4,6 +4,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,60 +20,68 @@ import java.util.ArrayList;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private ActivityMapsBinding binding;
 
-    LatLng User1 = new LatLng(41.015137, 28.979530);
-    LatLng User2 = new LatLng(39.925533, 32.866287);
-    LatLng User3 = new LatLng(38.423733, 27.142826);
-    LatLng User4 = new LatLng(38.680969, 39.226398);
-
-    // creating array list for adding all our locations.
-    private ArrayList<LatLng> locationArrayList;
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        // in below line we are initializing our array list.
-        locationArrayList = new ArrayList<>();
-
-        // on below line we are adding our
-        // locations in our array list.
-        locationArrayList.add(User1);
-        locationArrayList.add(User2);
-        locationArrayList.add(User3);
-        locationArrayList.add(User4);
+        Toast.makeText(this, "Please allow to create user", Toast.LENGTH_LONG).show();
     }
-
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener()
+        {
 
-        // inside on map ready method
-        // we will be displaying all our markers.
-        // for adding markers we are running for loop and
-        // inside that we are drawing marker on our map.
-        for (int i = 0; i < locationArrayList.size(); i++) {
+            @Override
+            public void onInfoWindowClick(Marker arg0) {
+                if(arg0 != null && arg0.getTitle().equals("User1")){
+                    Intent intent1 = new Intent(MapsActivity.this, UserSignUpActivity.class);
+                    startActivity(intent1);}
 
-            // below line is use to add marker to each location of our array list.
-            mMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title("Marker"));
+                if(arg0 != null && arg0.getTitle().equals("User2")){
+                    Intent intent2 = new Intent(MapsActivity.this, UserSignUpActivity.class);
+                    startActivity(intent2);}
 
-            // below lin is use to zoom our camera on map.
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
+                if(arg0 != null && arg0.getTitle().equals("User3")){
+                    Intent intent3 = new Intent(MapsActivity.this, UserSignUpActivity.class);
+                    startActivity(intent3);}
 
-            // below line is use to move our camera to the specific location.
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
-        }
+                if(arg0 != null && arg0.getTitle().equals("User4")){
+                    Intent intent4 = new Intent(MapsActivity.this, UserSignUpActivity.class);
+                    startActivity(intent4);}
+            }
+        });
+        LatLng User1 = new LatLng(41.015137, 28.979530);
+        LatLng User2 = new LatLng(39.925533, 32.866287);
+        LatLng User3 = new LatLng(38.423733, 27.142826);
+        LatLng User4 = new LatLng(38.680969, 39.226398);
+        mMap.addMarker(new MarkerOptions()
+                .position(User1)
+                .title("User1")
+                .snippet("Allow to create user"));
+        mMap.addMarker(new MarkerOptions()
+                .position(User2)
+                .title("User2")
+                .snippet("Allow to create user"));
+        mMap.addMarker(new MarkerOptions()
+                .position(User3)
+                .title("User3")
+                .snippet("Allow to create user"));
+        mMap.addMarker(new MarkerOptions()
+                .position(User4)
+                .title("User4")
+                .snippet("Allow to create user"));
+
     }
-
-
-
-
-
 }
+
+
+
+
+
