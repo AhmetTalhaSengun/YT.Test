@@ -48,7 +48,7 @@ public class AdminLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(AdminLogInActivity.this,MapsActivity.class);
+                    Intent intent = new Intent(AdminLogInActivity.this,UserSelectionScreenActivity.class);
                     startActivity(intent);
                     finish();
                 }
