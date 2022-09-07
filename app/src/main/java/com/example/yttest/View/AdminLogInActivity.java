@@ -1,4 +1,4 @@
-package com.example.yttest;
+package com.example.yttest.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,17 +9,27 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.yttest.Model.UsersData;
+import com.example.yttest.R;
 import com.example.yttest.databinding.ActivityAdminLogInBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class AdminLogInActivity extends AppCompatActivity {
 
     private ActivityAdminLogInBinding binding;
     private FirebaseAuth auth;
-
+    private FirebaseFirestore firebaseFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -29,6 +39,14 @@ public class AdminLogInActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
         auth= FirebaseAuth.getInstance();
+
+        FirebaseUser user = auth.getCurrentUser();
+        firebaseFirestore = FirebaseFirestore.getInstance();
+        if (user != null) {
+            Intent intent = new Intent(AdminLogInActivity.this,MapsActivity.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 
@@ -48,7 +66,29 @@ public class AdminLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(AdminLogInActivity.this,UserSelectionScreenActivity.class);
+                    CollectionReference userRef = firebaseFirestore.collection("users");
+
+// Create a query against the collection.
+                    Query query = userRef.whereEqualTo("email", email);
+                    query.get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                           UsersData data = document.toObject( UsersData.class);
+                                           if(data.isAdmin){
+                                               // TODO: Admin
+                                           } else {
+                                               // TODO: Users
+                                           }
+                                        }
+                                    } else {
+
+                                    }
+                                }
+                            });
+                    Intent intent = new Intent(AdminLogInActivity.this,MapsActivity.class);
                     startActivity(intent);
                     finish();
                 }
