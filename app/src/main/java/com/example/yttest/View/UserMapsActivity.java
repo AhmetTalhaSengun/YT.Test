@@ -1,70 +1,139 @@
 package com.example.yttest.View;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
-import android.os.Bundle;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.example.yttest.Model.MarkerData;
 import com.example.yttest.R;
+import com.example.yttest.util.HttpConnection;
+import com.example.yttest.util.PathJSONParser;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.yttest.databinding.ActivityUserMapsBinding;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
-public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class UserMapsActivity extends FragmentActivity implements OnMapReadyCallback, LocationListener {
 
     private GoogleMap mMap;
     private ActivityUserMapsBinding binding;
 
-    LatLng Address1 = new LatLng(41.006000, 25.555999);
-    LatLng Address2 = new LatLng(41.045075, 28.702298);
-    LatLng Address3 = new LatLng(41.040843, 29.001394);
-    LatLng Address4 = new LatLng(41.021557, 29.006692);
-
-    // creating array list for adding all our locations.
-    private ArrayList<LatLng> locationArrayList;
+    private FirebaseFirestore firebaseFirestore;
+    private ArrayList<MarkerData> markerData = new ArrayList<MarkerData>();
+    private String email;
+    private LocationManager locationManager;
+    private LatLng userLocation;
+    private FirebaseAuth auth;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-
+        firebaseFirestore = FirebaseFirestore.getInstance();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        // in below line we are initializing our array list.
-        locationArrayList = new ArrayList<>();
-
-        // on below line we are adding our
-        // locations in our array list.
-        locationArrayList.add(Address1);
-        locationArrayList.add(Address2);
-        locationArrayList.add(Address3);
-        locationArrayList.add(Address4);
+        auth= FirebaseAuth.getInstance();
+        email = auth.getCurrentUser().getEmail();
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, (LocationListener) this);
     }
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onLocationChanged(Location location) {
+        userLocation = new LatLng(location.getLatitude(),location.getLongitude());
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,
+                13));
+    }
 
-        // inside on map ready method
-        // we will be displaying all our markers.
-        // for adding markers we are running for loop and
-        // inside that we are drawing marker on our map.
-        for (int i = 0; i < locationArrayList.size(); i++) {
 
-            // below line is use to add marker to each location of our array list.
-            mMap.addMarker(new MarkerOptions().position(locationArrayList.get(i)).title("Address"));
+    public void getMarkerData(){
+        CollectionReference markersRef = firebaseFirestore.collection("markers");
+        Query query = markersRef.whereEqualTo("registeredUserEmail", email);
+        query.get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                MarkerData data = document.toObject( MarkerData.class);
+                                data.setObjectID(document.getId());
+                                markerData.add(data);
+                            }
+                            if(mMap != null) {
+                                addMarkers();
+                            }
+                        } else {
 
-            // below lin is use to zoom our camera on map.
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(18.0f));
+                        }
+                    }
+                });
+    }
 
-            // below line is use to move our camera to the specific location.
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(locationArrayList.get(i)));
+    public void addMarkers(){
+        for (int i = 0; i < markerData.size(); i++) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(Double.parseDouble(markerData.get(i).getLat()),Double.parseDouble(markerData.get(i).getLon()))).title(String.valueOf(i))
+                    .snippet("Allow to create user"));
         }
     }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        getMarkerData();
+        mMap = googleMap;
+
+
+        addMarkers();
+    }
+
+
 }

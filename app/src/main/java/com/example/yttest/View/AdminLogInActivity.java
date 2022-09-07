@@ -66,31 +66,10 @@ public class AdminLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    CollectionReference userRef = firebaseFirestore.collection("users");
-
-// Create a query against the collection.
-                    Query query = userRef.whereEqualTo("email", email);
-                    query.get()
-                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        for (QueryDocumentSnapshot document : task.getResult()) {
-                                           UsersData data = document.toObject( UsersData.class);
-                                           if(data.isAdmin){
-                                               // TODO: Admin
-                                           } else {
-                                               // TODO: Users
-                                           }
-                                        }
-                                    } else {
-
-                                    }
-                                }
-                            });
                     Intent intent = new Intent(AdminLogInActivity.this,MapsActivity.class);
                     startActivity(intent);
                     finish();
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
 

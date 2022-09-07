@@ -49,7 +49,7 @@ public class UserLogInActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(UserLogInActivity.this,UserMapsActivity.class);
+                    Intent intent = new Intent(UserLogInActivity.this,MapsActivity.class);
                     startActivity(intent);
                     finish();
                 }

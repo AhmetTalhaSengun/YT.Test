@@ -2,4 +2,7 @@
     <string name="app_name">YT.Test</string>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="title_activity_user_maps">UserMapsActivity</string>
+    <string name="ok">tamam</string>
+    <string name="text_location_permission">konum iznine ihtiyacım var</string>
+    <string name="title_location_permission">konum izni</string>
 </resources>

@@ -66,9 +66,18 @@ public class UserSignUpActivity extends AppCompatActivity {
             auth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                 @Override
                 public void onSuccess(AuthResult authResult) {
-                    Intent intent = new Intent(UserSignUpActivity.this, UserLogInActivity.class);
-                    startActivity(intent);
-                    finish();
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("name", name);
+                    data.put("email", email);
+                    data.put("isAdmin", false);
+
+                    firebaseFirestore.collection("users").add(data)
+                            .addOnSuccessListener(documentReference -> {
+                                Toast.makeText(UserSignUpActivity.this, "User Created successfully.", Toast.LENGTH_LONG).show();
+
+                            })
+                            .addOnFailureListener(e -> Toast.makeText(UserSignUpActivity.this, "User create operation failed.", Toast.LENGTH_LONG).show());
+
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -78,26 +87,6 @@ public class UserSignUpActivity extends AppCompatActivity {
             });
 
         }
-
-
-        Map<String, Object> user = new HashMap<>();
-        user.put("name", name);
-        user.put("email", email);
-
-        firebaseFirestore.collection("users")
-                .add(user)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
 
     }
 

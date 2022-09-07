@@ -82,7 +82,7 @@ public class UserSelectionScreenActivity extends AppCompatActivity implements Us
 
     private void getData() {
 
-        firebaseFirestore.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        firebaseFirestore.collection("users").whereNotEqualTo("isAdmin",true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -94,35 +94,6 @@ public class UserSelectionScreenActivity extends AppCompatActivity implements Us
                 }
             }
         });
-
-        /*firebaseFirestore.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-
-                if (error !=  null) {
-
-                    Toast.makeText(UserSelectionScreenActivity.this,error.getLocalizedMessage(), Toast.LENGTH_LONG).show();
-                }
-
-                if (value != null) {
-                    for (DocumentSnapshot snapshot: value.getDocuments()){
-
-                        Map<String, Object> data = snapshot.getData();
-
-                        String email = (String) data.get("email");
-                        String name = (String) data.get("name");
-
-                        UsersData usersData = new UsersData(email,name);
-                        usersDataArrayList.add(usersData);
-
-
-                    }
-
-                    usersMailsAdapter.notifyDataSetChanged();
-                }
-
-            }
-        });*/
     }
 
     public void CreateUserClick (View view) {
